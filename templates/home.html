@@ -1,0 +1,72 @@
+<html>
+
+<head>
+    <script type="text/javascript" src="https://websdk.socure.com/bundle.js"></script>
+    <script type="text/javascript">
+
+        function post(path, params, method = 'post') {
+
+            const form = document.createElement('form');
+            form.method = method;
+            form.action = path;
+
+            for (const key in params) {
+                if (params.hasOwnProperty(key)) {
+                    const hiddenField = document.createElement('input');
+                    hiddenField.type = 'hidden';
+                    hiddenField.name = key;
+                    hiddenField.value = params[key];
+
+                    form.appendChild(hiddenField);
+                }
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        function onProgress(progress) {
+            console.log(`onProgress: ${progress}`);
+        }
+
+        function onSuccess(response) {
+            console.log(`onSuccess: ${response}`);
+            post("./onSuccess", { referenceId: response.referenceId });
+        }
+
+        function onError(error) {
+            console.log(`onError: ${error}`);
+        }
+
+        var config = {
+            onProgress: onProgress, //callback method for reading the progress status
+            onSuccess: onSuccess, //callback method to read the success response
+            onError: onError, //callback method to read the error response
+            qrCodeNeeded: true //toggle the QR code display
+        };
+
+        function startSocure() {
+            SocureInitializer.init("{{socureSdkKey}}")
+                .then(lib => {
+                    lib.init("{{socureSdkKey}}", "#socure", config).then(function () {
+                        lib.start(1).then(function (response) {
+                            console.log(`response: ${response.referenceId}`);
+                        },
+                            function (error) {
+                                console.log(`error: ${error}`);
+                            });
+                    });
+                });
+        }
+
+    </script>
+</head>
+
+<body>
+    <h1>Socure SDK Demo - {{socureSdkKey}}</h1>
+    <div id="socure" />
+    <br />
+    <script>startSocure()</script>
+</body>
+
+</html>
